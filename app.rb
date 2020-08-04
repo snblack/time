@@ -1,6 +1,6 @@
 class App
 
-  ALL_FORMATS = ['year', 'month', 'day', 'hour', 'min', 'sec']
+    ALL_FORMATS = ['year', 'month', 'day', 'hour', 'min', 'sec']
 
   def call(env)
     @path = env['PATH_INFO']
@@ -28,7 +28,7 @@ class App
   def false_format?
     check_formats
 
-    true if !@format_error.empty?  
+    true if !@format_error.empty?
   end
 
   def check_formats
@@ -41,7 +41,7 @@ class App
       time_hash[form] = time.send(form)
     end
 
-    time_output = []
+    @time_output = []
     @format_error = []
 
     format.each do |form|
@@ -58,12 +58,10 @@ class App
   end
 
   def body
-    ['fdsfsdfs']
-
-    # if format_error.present?
-    #   "Unknown time format [#{@format_error.join(',')}]"
-    # else
-    #   [@time_output.join('-')]
-    # end
+    if @format_error.any?
+      ["Unknown time format [#{@format_error.join(',')}]"]
+    else
+      [@time_output.join('-')]
+    end
   end
 end
