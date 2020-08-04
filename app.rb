@@ -5,24 +5,36 @@ class App
   def call(env)
     @path = env['PATH_INFO']
     @query = env['QUERY_STRING']
+
     [status, headers, body]
   end
 
   private
 
   def status
-    200
+    if false_path?
+      404
+    elsif false_format?
+      400
+    else
+      200
+    end
   end
 
-  def headers
-    {'Content-Type' => 'text/plain'}
+  def false_path?
+    true if @path != '/time'
   end
 
-  def body
+  def false_format?
+    check_formats
+
+    true if !@format_error.empty?  
+  end
+
+  def check_formats
     format = @query.gsub('format=', '').chomp('%').split('%2C')
 
     time = Time.now
-    # Хеш с текущим временем
     time_hash = {}
 
     ALL_FORMATS.each do |form|
@@ -30,16 +42,28 @@ class App
     end
 
     time_output = []
+    @format_error = []
 
     format.each do |form|
-        time_output << time_hash[form] if time_hash.keys.include?(form)
+      if time_hash.keys.include?(form)
+        @time_output << time_hash[form]
+      else
+        @format_error << form
+      end
     end
+  end
 
-    [time_output.join('-')]
+  def headers
+    {'Content-Type' => 'text/plain'}
+  end
+
+  def body
+    ['fdsfsdfs']
+
+    # if format_error.present?
+    #   "Unknown time format [#{@format_error.join(',')}]"
+    # else
+    #   [@time_output.join('-')]
+    # end
   end
 end
-
-# start_with?("format=")
-# /time?format=year%2Cmonth%2Cday
-# # "QUERY_STRING"=>"text=1:"
-# # "PATH_INFO"=>"/time:"
